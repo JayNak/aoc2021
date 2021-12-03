@@ -11,9 +11,11 @@ func main() {
 
 	day1a, day1b := Day1()
 	day2a, day2b := Day2()
+	day3a, day3b := Day3()
 
 	fmt.Printf("Day 1: %v, %v\n", day1a, day1b)
 	fmt.Printf("Day 2: %v, %v\n", day2a, day2b)
+	fmt.Printf("Day 3: %v, %v\n", day3a, day3b)
 
 }
 
