@@ -1,10 +1,14 @@
-package main
+package aoc
 
-import "strconv"
+import (
+	"strconv"
 
-func Day3() (int, int) {
+	"github.com/jaynak/aoc2021/pkg/util"
+)
 
-	lines := ReadToStrings("../data/day3.txt")
+func Day3(path string) (int, int) {
+
+	lines := util.ReadToStrings(path)
 
 	numLines := len(lines)
 	digits := len(lines[0])

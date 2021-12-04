@@ -1,12 +1,14 @@
-package main
+package aoc
 
 import (
 	"strconv"
 	"strings"
+
+	"github.com/jaynak/aoc2021/pkg/util"
 )
 
-func Day4() (int, int) {
-	lines := ReadToStrings("../data/day4.txt")
+func Day4(path string) (int, int) {
+	lines := util.ReadToStrings(path)
 
 	// Create the boards
 	boards := []*board{}

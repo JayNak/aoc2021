@@ -1,25 +1,10 @@
-package main
+package util
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 )
-
-func main() {
-
-	day1a, day1b := Day1()
-	day2a, day2b := Day2()
-	day3a, day3b := Day3()
-	day4a, day4b := Day4()
-
-	fmt.Printf("Day 1: %v, %v\n", day1a, day1b)
-	fmt.Printf("Day 2: %v, %v\n", day2a, day2b)
-	fmt.Printf("Day 3: %v, %v\n", day3a, day3b)
-	fmt.Printf("Day 4: %v, %v\n", day4a, day4b)
-
-}
 
 func ReadToInts(fileName string) []int {
 	f, err := os.Open(fileName)

@@ -1,8 +1,10 @@
-package main
+package aoc
 
-func Day1() (int, int) {
+import "github.com/jaynak/aoc2021/pkg/util"
 
-	vals := ReadToInts("../data/day1.txt")
+func Day1(path string) (int, int) {
+
+	vals := util.ReadToInts(path)
 
 	count := 0
 	last := -1

@@ -1,12 +1,14 @@
-package main
+package aoc
 
 import (
 	"regexp"
 	"strconv"
+
+	"github.com/jaynak/aoc2021/pkg/util"
 )
 
-func Day2() (int, int) {
-	instructions := ReadToStrings("../data/day2.txt")
+func Day2(path string) (int, int) {
+	instructions := util.ReadToStrings(path)
 
 	r := regexp.MustCompile(`([a-z]+) ([0-9]+)`)
 	x := 0
