@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"text/tabwriter"
+	"time"
 
 	"github.com/jaynak/aoc2021/pkg/aoc"
 )
@@ -43,6 +45,9 @@ func main() {
 		panic(err)
 	}
 
+	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	fmt.Fprintln(writer, "file name\tpart 1\tpart 2\telapsed time")
+
 	for _, f := range files {
 
 		m := r.FindAllStringSubmatch(f.Name(), -1)
@@ -59,8 +64,14 @@ func main() {
 
 		// fns is a slice of the functions
 		if n < len(fns) {
+			start := time.Now()
 			a, b := fns[n](dataPath + "/" + f.Name())
-			fmt.Printf("%v: %v, %v\n", f.Name(), a, b)
+			elapsed := time.Since(start)
+			fmt.Fprintf(writer, "%v\t%v\t%v\t%s\n", f.Name(), a, b, elapsed)
+
+			// fmt.Printf("%v: %v, %v in %s\n", f.Name(), a, b, elapsed)
 		}
 	}
+
+	writer.Flush()
 }
