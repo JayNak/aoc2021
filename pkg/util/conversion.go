@@ -26,3 +26,17 @@ func IntAbs(n int) int {
 	}
 	return n
 }
+
+func StringSliceToIntGrid(lines []string) [][]int {
+	var grid [][]int
+
+	for _, line := range lines {
+		row := []int{}
+		for _, r := range line {
+			row = append(row, int(r-'0'))
+		}
+		grid = append(grid, row)
+	}
+
+	return grid
+}
