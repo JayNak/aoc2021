@@ -2,20 +2,6 @@ package aoc
 
 import "testing"
 
-func TestPolymers(t *testing.T) {
-
-	input := "NNCB"
-
-	subs := map[string]string{"CH": "CB", "NN": "NC"}
-
-	out := InsertPolymers(input, subs)
-
-	if out != "NCNCB" {
-		t.Fail()
-	}
-
-}
-
 func TestDay14(t *testing.T) {
 	a, b := Day14("../../data/14-test.txt")
 
