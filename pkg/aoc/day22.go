@@ -27,17 +27,102 @@ func Day22(path string) (int, int) {
 		}
 	}
 
-	return count, 0
+	p2cubes := reduce_cuboids(instructions)
+
+	p2count := 0
+	for _, cube := range p2cubes {
+		if cube.onoff {
+			p2count += cube.size()
+		} else {
+			p2count -= cube.size()
+		}
+	}
+
+	return count, p2count
 }
 
-type inst struct {
+func reduce_cuboids(cubes []cuboid) []cuboid {
+
+	new_cubes := []cuboid{}
+
+	for _, cube := range cubes {
+
+		temp_cubes := []cuboid{}
+		// Look for overlaps
+		for _, new := range new_cubes {
+			b, overlap := cube.overlaps(new)
+
+			if !b {
+				continue
+			}
+
+			if cube.onoff && overlap.onoff {
+				overlap.onoff = false
+			} else if !cube.onoff && !overlap.onoff {
+				overlap.onoff = true
+			} else {
+				overlap.onoff = cube.onoff
+			}
+
+			temp_cubes = append(temp_cubes, overlap)
+		}
+
+		if cube.onoff {
+			new_cubes = append(new_cubes, cube)
+		}
+
+		new_cubes = append(new_cubes, temp_cubes...)
+	}
+
+	return new_cubes
+}
+
+type cuboid struct {
 	onoff bool
 	x     []int
 	y     []int
 	z     []int
 }
 
-func apply_instructions(boxes [][][]bool, instructions []inst) [][][]bool {
+func (c cuboid) size() int {
+	return (c.x[1] - c.x[0] + 1) * (c.y[1] - c.y[0] + 1) * (c.z[1] - c.z[0] + 1)
+}
+
+func (c cuboid) overlaps(other cuboid) (bool, cuboid) {
+
+	x1 := util.MaxInt(c.x[0], other.x[0])
+	x2 := util.MinInt(c.x[1], other.x[1])
+
+	if x1 > x2 {
+		return false, cuboid{}
+	}
+
+	y1 := util.MaxInt(c.y[0], other.y[0])
+	y2 := util.MinInt(c.y[1], other.y[1])
+
+	if y1 > y2 {
+		return false, cuboid{}
+	}
+
+	z1 := util.MaxInt(c.z[0], other.z[0])
+	z2 := util.MinInt(c.z[1], other.z[1])
+
+	if z1 > z2 {
+		return false, cuboid{}
+	}
+
+	// Overlap in all 3 dimensions, this one overlaps
+	overlap := cuboid{
+		onoff: other.onoff,
+		x:     []int{x1, x2},
+		y:     []int{y1, y2},
+		z:     []int{z1, z2},
+	}
+
+	return true, overlap
+}
+
+func apply_instructions(boxes [][][]bool, instructions []cuboid) [][][]bool {
 
 	max := len(boxes) / 2
 
@@ -54,7 +139,7 @@ func apply_instructions(boxes [][][]bool, instructions []inst) [][][]bool {
 				if y < -max || y > max {
 					continue
 				}
-				for z := in.z[0]; y <= in.z[1]; y++ {
+				for z := in.z[0]; z <= in.z[1]; z++ {
 					if z < -max || z > max {
 						continue
 					}
@@ -70,16 +155,16 @@ func apply_instructions(boxes [][][]bool, instructions []inst) [][][]bool {
 
 }
 
-func parse_instructions(lines []string) []inst {
+func parse_instructions(lines []string) []cuboid {
 
-	instructions := []inst{}
+	instructions := []cuboid{}
 
 	r := regexp.MustCompile("([onf]+) x=([0-9-]+)..([0-9-]+),y=([0-9-]+)..([0-9-]+),z=([0-9-]+)..([0-9-]+)")
 
 	for _, line := range lines {
 		m := r.FindAllStringSubmatch(line, -1)
 
-		i := inst{}
+		i := cuboid{}
 
 		i.onoff = m[0][1] == "on"
 
