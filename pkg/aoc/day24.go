@@ -1,6 +1,7 @@
 package aoc
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 
@@ -13,7 +14,13 @@ func Day24(path string) (int, int) {
 
 	inst := read_instruction_set(lines)
 
-	max_model := find_valid_model(inst, []int{})
+	num, ok := find_valid_model_2(inst, []int{0, 0, 0, 0})
+
+	if ok {
+		fmt.Println(num)
+	}
+
+	// max_model := find_valid_model(inst, []int{})
 
 	// input := []int{1, 3, 5, 7, 9, 2, 4, 6, 8, 9, 9, 9, 9, 9}
 
@@ -21,7 +28,7 @@ func Day24(path string) (int, int) {
 
 	// fmt.Println(reg)
 
-	return max_model, 0
+	return len(num), 0
 }
 
 type monad_inst struct {
@@ -30,59 +37,82 @@ type monad_inst struct {
 	val int
 }
 
-func find_valid_model(instructions []*monad_inst, prev []int) int {
+func find_valid_model_2(instructions [][]*monad_inst, registers []int) ([]int, bool) {
 
-	if len(prev) == 14 {
-		ret := apply_monad_instructions(instructions, prev)
+	for num := 9; num > 0; num-- {
+		fmt.Printf("%v ", num)
+		locals := apply_monad_instructions(instructions[0], registers, num)
 
-		if ret[3] == 0 {
-			// This is a valid model number
-			str := ""
-			for _, i := range prev {
-				str += strconv.Itoa(i)
+		if len(instructions) == 1 {
+			fmt.Printf("\n")
+			if locals[3] == 0 {
+				return []int{num}, true
+			} else {
+				return []int{}, false
 			}
-
-			val, _ := strconv.Atoi(str)
-
-			return val
-		}
-
-		return 0
-	}
-
-	// Not at the end yet
-	nums := prev
-	nums = append(nums, 0)
-	for i := 9; i > 0; i-- {
-		nums[len(nums)-1] = i
-		ret := find_valid_model(instructions, nums)
-		if ret != 0 {
-			return ret
+		} else {
+			nums, ok := find_valid_model_2(instructions[1:], locals)
+			if ok {
+				return append([]int{num}, nums...), true
+			}
 		}
 	}
 
 	// Fell through
-	return 0
+	return []int{}, false
 }
 
-func apply_monad_instructions(instructions []*monad_inst, input []int) []int {
+// func find_valid_model(instructions []*monad_inst, prev []int) int {
 
-	if len(input) != 14 {
-		panic("bad input")
-	}
+// 	if len(prev) == 14 {
+// 		ret := apply_monad_instructions(instructions, prev)
 
-	registers := []int{0, 0, 0, 0}
+// 		if ret[3] == 0 {
+// 			// This is a valid model number
+// 			str := ""
+// 			for _, i := range prev {
+// 				str += strconv.Itoa(i)
+// 			}
+
+// 			val, _ := strconv.Atoi(str)
+
+// 			return val
+// 		}
+
+// 		return 0
+// 	}
+
+// 	// Not at the end yet
+// 	nums := prev
+// 	nums = append(nums, 0)
+// 	for i := 9; i > 0; i-- {
+// 		nums[len(nums)-1] = i
+// 		ret := find_valid_model(instructions, nums)
+// 		if ret != 0 {
+// 			return ret
+// 		}
+// 	}
+
+// 	// Fell through
+// 	return 0
+// }
+
+func apply_monad_instructions(instructions []*monad_inst, registers []int, try int) []int {
+
+	temp := make([]int, 4)
+	copy(temp, registers)
+
 	ptr := 0
 
 	for _, inst := range instructions {
 		num := inst.val
 
 		if inst.op == 0 {
-			num = input[ptr]
+			num = try
 			ptr++
 		} else {
 			if len(inst.reg) == 2 {
-				num = registers[inst.reg[1]]
+				num = temp[inst.reg[1]]
 			}
 		}
 
@@ -91,28 +121,28 @@ func apply_monad_instructions(instructions []*monad_inst, input []int) []int {
 		// Do the op
 		switch inst.op {
 		case 0:
-			registers[dest] = num
+			temp[dest] = num
 		case 1:
-			registers[dest] += num
+			temp[dest] += num
 		case 2:
-			registers[dest] *= num
+			temp[dest] *= num
 		case 3:
-			registers[dest] /= num
+			temp[dest] /= num
 		case 4:
-			registers[dest] = registers[dest] % num
+			temp[dest] = temp[dest] % num
 		case 5:
-			if registers[dest] == num {
-				registers[dest] = 1
+			if temp[dest] == num {
+				temp[dest] = 1
 			} else {
-				registers[dest] = 0
+				temp[dest] = 0
 			}
 		}
 	}
 
-	return registers
+	return temp
 }
 
-func read_instruction_set(lines []string) []*monad_inst {
+func read_instruction_set(lines []string) [][]*monad_inst {
 
 	r := regexp.MustCompile("([a-z]+) ([w-z])( ([0-9a-z-]+))?")
 	inst_map := map[string]int{
@@ -122,6 +152,7 @@ func read_instruction_set(lines []string) []*monad_inst {
 		"w": 0, "x": 1, "y": 2, "z": 3,
 	}
 
+	ret := [][]*monad_inst{}
 	instructions := []*monad_inst{}
 
 	for _, line := range lines {
@@ -143,10 +174,17 @@ func read_instruction_set(lines []string) []*monad_inst {
 				inst.val = num
 			}
 
+		} else {
+			if len(instructions) > 0 {
+				ret = append(ret, instructions)
+				instructions = []*monad_inst{}
+			}
 		}
 
 		instructions = append(instructions, inst)
 	}
 
-	return instructions
+	ret = append(ret, instructions)
+
+	return ret
 }
