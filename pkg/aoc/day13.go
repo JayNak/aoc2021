@@ -74,7 +74,9 @@ func FoldPaper(plot [][]int, dir rune, val int) [][]int {
 			new_paper[i] = make([]int, len(plot[0]))
 
 			for j := range new_paper[i] {
-				new_paper[i][j] = plot[i][j] + plot[2*val-i][j]
+				if 2*val-i < len(plot) {
+					new_paper[i][j] = plot[i][j] + plot[2*val-i][j]
+				}
 			}
 		}
 	}

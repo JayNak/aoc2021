@@ -15,6 +15,8 @@ import (
 
 func main() {
 
+	all_start := time.Now()
+
 	// Pull in the function map
 	fns := aoc.GetFunctions()
 	dataPath := "."
@@ -73,5 +75,9 @@ func main() {
 		}
 	}
 
+	elapsed_total := time.Since(all_start)
+
 	writer.Flush()
+
+	fmt.Printf("Total time: %s\n", elapsed_total)
 }
